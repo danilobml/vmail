@@ -1,12 +1,8 @@
 <template>
   <table class="mail-table">
     <tbody>
-      <tr
-        v-for="email in unarchivedEmails"
-        :key="email.id"
-        :class="['clickable', email.read ? 'read' : '']"
-        @click="toggleReadEmail(email)"
-      >
+      <tr v-for="email in unarchivedEmails" :key="email.id" :class="['clickable', email.read ? 'read' : '']"
+        @click="openEmail(email)">
         <td><input type="checkbox" /></td>
         <td>{{ email.subject }}</td>
         <td>
@@ -17,31 +13,43 @@
       </tr>
     </tbody>
   </table>
+  <ModalView v-if="openedEmail" @closeModal="openedEmail = null">
+    <MailView v-if="openedEmail" :email="openedEmail" />
+  </ModalView>
 </template>
 
 <script>
 import { format } from 'date-fns'
 import axios from 'axios'
 import { ref } from 'vue'
+import MailView from './MailView.vue'
+import ModalView from './ModalView.vue'
 
 export default {
   async setup() {
     let { data: emails } = await axios.get('http://localhost:3000/emails')
 
     emails = ref(emails)
+    const openedEmail = ref(null)
 
     return {
       format,
-      emails
+      emails,
+      openedEmail
     }
+  },
+  components: {
+    MailView,
+    ModalView
   },
   methods: {
     updateEmail(email) {
       axios.put(`http://localhost:3000/emails/${email.id}`, email)
     },
 
-    toggleReadEmail(email) {
-      email.read = !email.read
+    openEmail(email) {
+      email.read = true
+      this.openedEmail = email
       this.updateEmail(email)
     },
 
