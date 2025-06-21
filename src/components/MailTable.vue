@@ -29,6 +29,7 @@ import { ref, reactive } from 'vue'
 import MailView from './MailView.vue'
 import ModalView from './ModalView.vue'
 import updateEmail from '../helpers/updateEmail'
+import useEmailSelection from '../composables/useEmailSelection'
 
 export default {
   async setup() {
@@ -37,24 +38,12 @@ export default {
     emails = ref(emails)
     const openedEmail = ref(null)
 
-    const selected = reactive(new Set())
-    const emailSelection = {
-      emails: selected,
-      toggle(email) {
-        if (selected.has(email)) {
-          selected.delete(email)
-        } else {
-          selected.add(email)
-        }
-      }
-    }
-
     return {
       format,
       emails,
       openedEmail,
       updateEmail,
-      emailSelection
+      emailSelection: useEmailSelection()
     }
   },
   components: {
