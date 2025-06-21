@@ -14,7 +14,7 @@
     </tbody>
   </table>
   <ModalView v-if="openedEmail" @closeModal="openedEmail = null">
-    <MailView v-if="openedEmail" :email="openedEmail" />
+    <MailView :email="openedEmail" @changeEmail="changeEmail" />
   </ModalView>
 </template>
 
@@ -24,6 +24,7 @@ import axios from 'axios'
 import { ref } from 'vue'
 import MailView from './MailView.vue'
 import ModalView from './ModalView.vue'
+import updateEmail from '../helpers/updateEmail'
 
 export default {
   async setup() {
@@ -35,7 +36,8 @@ export default {
     return {
       format,
       emails,
-      openedEmail
+      openedEmail,
+      updateEmail
     }
   },
   components: {
@@ -43,19 +45,28 @@ export default {
     ModalView
   },
   methods: {
-    updateEmail(email) {
-      axios.put(`http://localhost:3000/emails/${email.id}`, email)
-    },
-
     openEmail(email) {
-      email.read = true
       this.openedEmail = email
-      this.updateEmail(email)
+      if (email) {
+        email.read = true
+        updateEmail(email)
+      }
     },
 
     archiveEmail(email) {
       email.archived = true
-      this.updateEmail(email)
+      updateEmail(email)
+    },
+
+    changeEmail({ toggleRead, toggleArchive, changeIndex, save, closeModal }) {
+      const email = this.openedEmail
+      const index = this.unarchivedEmails.indexOf(email)
+      if (toggleRead) { email.read = !email.read }
+      if (toggleArchive) { email.archived = !email.archived }
+      if (changeIndex === 1) { this.openEmail(this.unarchivedEmails[index + 1]) }
+      if (changeIndex === -1) { this.openEmail(this.unarchivedEmails[index - 1]) }
+      if (save) { this.updateEmail(email) }
+      if (closeModal) { this.openedEmail = null }
     }
   },
   computed: {

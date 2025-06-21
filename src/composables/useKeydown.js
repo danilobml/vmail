@@ -2,8 +2,8 @@ import { onMounted, onBeforeUnmount } from 'vue'
 
 const useKeydown = (keyCombos) => {
   const onKeydown = (event) => {
-    let keyCombo = keyCombos.find(kc => kc.key === event.key)
-    if (event.key === keyCombo.key) {
+    const keyCombo = keyCombos.find(kc => kc.key === event.key)
+    if (keyCombo) {
       keyCombo.fn()
     }
   }
@@ -13,7 +13,7 @@ const useKeydown = (keyCombos) => {
   })
 
   onBeforeUnmount(() => {
-    window.addEventListener('keydown', onKeydown)
+    window.removeEventListener('keydown', onKeydown)
   })
 }
 
