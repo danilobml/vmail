@@ -1,9 +1,10 @@
 <template>
-  <!-- <h1>{{ emailSelection.emails.size }} emails selected</h1> -->
-  <BulkActionBar :emails="unarchivedEmails" />
+  <button @click="selectScreen('inbox')" :disabled="selectedScreen === 'inbox'">Inbox</button>
+  <button @click="selectScreen('archived')" :disabled="selectedScreen === 'archived'">Archive</button>
+  <BulkActionBar :emails="filteredEmails" />
   <table class="mail-table">
     <tbody>
-      <tr v-for="email in unarchivedEmails" :key="email.id" :class="['clickable', email.read ? 'read' : '']">
+      <tr v-for="email in filteredEmails" :key="email.id" :class="['clickable', email.read ? 'read' : '']">
         <td><input
             type="checkbox"
             @click="emailSelection.toggle(email)"
@@ -26,7 +27,7 @@
 <script>
 import { format } from 'date-fns'
 import axios from 'axios'
-import { ref, reactive } from 'vue'
+import { ref } from 'vue'
 import MailView from './MailView.vue'
 import ModalView from './ModalView.vue'
 import updateEmail from '../helpers/updateEmail'
@@ -39,13 +40,17 @@ export default {
 
     emails = ref(emails)
     const openedEmail = ref(null)
+    const selectedScreen = ref('inbox')
+
+    const emailSelection = useEmailSelection()
 
     return {
       format,
       emails,
       openedEmail,
       updateEmail,
-      emailSelection: useEmailSelection()
+      emailSelection,
+      selectedScreen
     }
   },
   components: {
@@ -69,13 +74,18 @@ export default {
 
     changeEmail({ toggleRead, toggleArchive, changeIndex, save, closeModal }) {
       const email = this.openedEmail
-      const index = this.unarchivedEmails.indexOf(email)
+      const index = this.filteredEmails.indexOf(email)
       if (toggleRead) { email.read = !email.read }
       if (toggleArchive) { email.archived = !email.archived }
-      if (changeIndex === 1) { this.openEmail(this.unarchivedEmails[index + 1]) }
-      if (changeIndex === -1) { this.openEmail(this.unarchivedEmails[index - 1]) }
+      if (changeIndex === 1) { this.openEmail(this.filteredEmails[index + 1]) }
+      if (changeIndex === -1) { this.openEmail(this.filteredEmails[index - 1]) }
       if (save) { this.updateEmail(email) }
       if (closeModal) { this.openedEmail = null }
+    },
+
+    selectScreen(newScreen) {
+      this.selectedScreen = newScreen
+      this.emailSelection.clear()
     }
   },
   computed: {
@@ -85,9 +95,14 @@ export default {
       })
     },
 
-    unarchivedEmails() {
-      return this.sortedEmails.filter(email => !email.archived)
-    }
+    filteredEmails() {
+      if (this.selectedScreen === 'inbox') {
+        return this.sortedEmails.filter(email => !email.archived)
+      } else {
+        return this.sortedEmails.filter(email => email.archived)
+      }
+    },
+
   }
 }
 </script>
