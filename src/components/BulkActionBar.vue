@@ -11,7 +11,7 @@
     <span class="buttons">
       <button @click="emailSelection.markRead()" :disabled="Array.from(emailSelection.emails).every(email => email.read)">Mark Read</button>
       <button @click="emailSelection.markUnread()" :disabled="Array.from(emailSelection.emails).every(email => !email.read)">Mark Unread</button>
-      <button @click="emailSelection.archive()" :disabled="emailSelection.emails.size === 0">Archive</button>
+      <button @click="emailSelection.toggleArchive(selectedScreen)" :disabled="emailSelection.emails.size === 0">{{ selectedScreen === 'inbox' ? 'Archive' : 'Unarchive' }}</button>
     </span>
   </div>
 </template>
@@ -24,6 +24,10 @@ import useEmailSelection from '../composables/useEmailSelection'
     props: {
       emails: {
         type: Array,
+        required: true
+      },
+      selectedScreen: {
+        type: String,
         required: true
       }
     },

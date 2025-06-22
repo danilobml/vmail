@@ -34,9 +34,13 @@ const useEmailSelection = () => {
     })
   }
 
-  const archive = () => {
+  const toggleArchive = (selectedScreen) => {
     emails.forEach(email => {
-      email.archived = true
+      if (selectedScreen === 'inbox') {
+        email.archived = true
+      } else {
+        email.archived = false
+      }
       updateEmail(email)
     })
     emails.clear()
@@ -49,7 +53,7 @@ const useEmailSelection = () => {
     addMultiple,
     markRead,
     markUnread,
-    archive
+    toggleArchive
   }
 }
 

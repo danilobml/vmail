@@ -1,7 +1,7 @@
 <template>
   <button @click="selectScreen('inbox')" :disabled="selectedScreen === 'inbox'">Inbox</button>
   <button @click="selectScreen('archived')" :disabled="selectedScreen === 'archived'">Archive</button>
-  <BulkActionBar :emails="filteredEmails" />
+  <BulkActionBar :emails="filteredEmails" :selected-screen="selectedScreen" />
   <table class="mail-table">
     <tbody>
       <tr v-for="email in filteredEmails" :key="email.id" :class="['clickable', email.read ? 'read' : '']">
@@ -15,7 +15,7 @@
           <p><strong>{{ email.subject }}</strong> - {{ email.body }}</p>
         </td>
         <td @click="openEmail(email)">{{ format(new Date(email.sentAt), "dd/MM/yyyy") }}</td>
-        <td><button @click="archiveEmail(email)">Archive</button></td>
+        <td><button @click="toggleArchiveEmail(email)">{{ selectedScreen === 'inbox' ? 'Archive' : 'Unarchive' }}</button></td>
       </tr>
     </tbody>
   </table>
@@ -67,8 +67,8 @@ export default {
       }
     },
 
-    archiveEmail(email) {
-      email.archived = true
+    toggleArchiveEmail(email) {
+      email.archived = !email.archived
       updateEmail(email)
     },
 

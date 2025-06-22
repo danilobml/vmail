@@ -28,16 +28,6 @@ export default {
 
     const email = props.email
 
-    // const toggleRead = () => {
-    //   email.read = !email.read
-    //   updateEmail(email)
-    // }
-
-    // const toggleArchive = () => {
-    //   email.archived = !email.archived
-    //   updateEmail(email)
-    // }
-
     const toggleRead = () => { emit ('changeEmail', {toggleRead: true, save: true}) }
     const toggleArchive = () => { emit ('changeEmail', {toggleArchive: true, save: true, closeModal: true}) }
     const goNewer = () => { emit ('changeEmail', {changeIndex: -1}) }
